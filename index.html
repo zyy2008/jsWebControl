@@ -13,7 +13,7 @@
 				margin: auto;
 			}
 			.video{
-				width: 600px;
+				width: 800px;
 				height: 400px;
 				margin: auto;
 				box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
@@ -106,7 +106,7 @@
 				</el-col>
 				<el-col :span="12">
 					<el-card shadow="never">
-						<div slot="header"> 预览</div>
+						<div slot="header">预览</div>
 						<el-form label-position="left" :inline="true" label-width="100px">
 							<el-row>
 								<el-col :span="13">
@@ -123,7 +123,7 @@
 									<el-button @click="handleStopPreview">停止预览</el-button>
 								</el-col>
 							</el-row>
-							<el-row>
+							<!-- <el-row>
 								<el-col :span="13">
 									<el-form-item label="音量" class="item-flex">
 										<el-input-number style="width:110px" v-model="volume" controls-position="right" :min="0" :max="100"></el-input-number>
@@ -135,7 +135,7 @@
 									<el-button>打开声音</el-button>
 									<el-button>关闭声音</el-button>
 								</el-col>
-							</el-row>
+							</el-row> -->
 						</el-form>
 					</el-card>
 
@@ -165,20 +165,18 @@
 						deviceport: 8000,
 						argument: {
 							encryptedFields: 'secret',
-							keyLength: 1024,
-							appkey: "23905561", //综合安防管理平台提供的appkey，必填
-							ip: "59.207.108.245",
+							appkey: "28730366", //综合安防管理平台提供的appkey，必填
+							ip: "10.19.132.75",
 							port: 443,
-							secret: "UdH8j2TbETyh7n8MVARy", //综合安防管理平台提供的secret，必填
+							secret: "HSZkCJpSJ7gSUYrO6wVi", //综合安防管理平台提供的secret，必填
 							enableHTTPS: 1,
-							language: "zh_CN",
+							// language: "zh_CN",
 							layout: "1x1",
 							playMode: 0,
-							reconnectDuration: 5,
-							reconnectTimes: 5,
-							showSmart: 0,
-							showToolbar: 0,
-							toolBarButtonIDs: "",
+							showSmart: 1,
+							showToolbar: 1,
+							buttonIDs: "0,16,256,257,258",
+							toolBarButtonIDs: "2048,2049,2050,2304,2306,2305,2307,2308,2309,4096,4608,4097,4099,4098,4609,4100",
 							snapDir: "D:/snap",
 							videoDir: "D:/video"
 						},
@@ -212,8 +210,9 @@
 										console.log(a)
 									}
 								});
-								self.oWebControl.JS_CreateWnd("playWnd", 600, 400).then(function() {
+								self.oWebControl.JS_CreateWnd("playWnd", 800, 400).then(function() {
 									console.log('加载成功')
+									// self.init(self)
 								});
 							}, function() {
 
@@ -222,7 +221,12 @@
 						cbConnectError: function() {
 							console.log("cbConnectError");
 							self.oWebControl = null;
-							self.$refs['playWnd'].$el.html("插件未启动，正在尝试启动，请稍候...");
+							console.log("插件未启动，正在尝试启动，请稍候...")
+							this.$notify({
+								message: '插件未启动，正在尝试启动，请稍候...',
+								type: 'warning'
+							});
+							// self.$refs['playWnd'].$el.html("插件未启动，正在尝试启动，请稍候...");
 							WebControl.JS_WakeUp("VideoWebPlugin://");
 							self.initCount++;
 							if (self.initCount < 3) {
@@ -230,7 +234,9 @@
 									self.initPlugin();
 								}, 3000)
 							} else {
-								self.$refs['playWnd'].$el.html("插件启动失败，请检查插件是否安装！");
+								self.$notify.error({
+									title: '插件启动失败，请检查插件是否安装！',
+								});
 							}
 						},
 						cbConnectClose: function(bNormalClose) {
@@ -249,15 +255,14 @@
 						} = self.form
 						const obj = Object.assign({}, argument);
 						obj.secret = self.setEncrypt(argument.secret);
+						console.log(obj)
 						self.oWebControl.JS_RequestInterface({
 							funcName: "init",
 							argument: JSON.stringify({
 								...obj
 							})
 						}).then(function(oData) {
-
-
-							self.oWebControl.JS_Resize(600, 400); // 初始化后resize一次，规避firefox下首次显示窗口后插件窗口未与DIV窗口重合问题
+							self.oWebControl.JS_Resize(800, 400); // 初始化后resize一次，规避firefox下首次显示窗口后插件窗口未与DIV窗口重合问题
 						});
 					})
 				},
@@ -367,7 +372,7 @@
 				login() {
 					const self = this
 					if (self.oWebControl != null) {
-						
+
 						self.oWebControl.JS_RequestInterface({
 							funcName: "uninit"
 						}).then(function(oData) {
@@ -375,10 +380,10 @@
 								self.init(self)
 							}
 						});
-					}else{
+					} else {
 						self.initPlugin()
 					}
-					
+
 				},
 				exit() {
 					const self = this
