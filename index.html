@@ -38,7 +38,7 @@
 				</el-col>
 			</el-row>
 			<el-row>
-				<el-col :span="12">
+				<el-col :span="24">
 					<!-- <el-card shadow="never">
 						<div slot="header">登录</div>
 						<el-form label-position="left" :inline="true" label-width="100px">
@@ -112,7 +112,7 @@
 							</el-row>
 						</el-form>
 					</el-card> -->
-					<el-card shadow="never">
+					<el-card shadow="never" style="width:800px;margin:auto">
 						<div slot="header">预览</div>
 						<el-form label-position="left" ref="ruleForm" :inline="true" label-width="100px" :model="ruleForm">
 							<el-row>
@@ -157,12 +157,12 @@
 
 
 				</el-col>
-				<el-col :span="12">
+				<!-- <el-col :span="12">
 					<el-card shadow="never">
 						<div slot="header">返回值信息<el-button style="float: right; padding: 3px 0" type="text" @click="info=''">清空</el-button></div>
 						<div class="info" ref="log" v-html="info"></div>
 						</el-card>
-				</el-col>
+				</el-col> -->
 			</el-row>
 		</div>
 	</body>
