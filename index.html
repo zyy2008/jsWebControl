@@ -18,6 +18,15 @@
 				margin: auto;
 				box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
 			}
+			.info{
+				width: 100%;
+				height: 400px;
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
+			.info div{
+				word-break: break-all;
+			}
 			
 		</style>
 	</head>
@@ -45,7 +54,7 @@
 									</el-form-item>
 								</el-col>
 							</el-row>
-							<el-row>
+							<!-- <el-row>
 								<el-col :span="13">
 									<el-form-item label="用户名">
 										<el-input v-model="form.username" />
@@ -56,14 +65,14 @@
 										<el-input type="password" v-model="form.password" />
 									</el-form-item>
 								</el-col>
-							</el-row>
+							</el-row> -->
 							<el-row>
-								<el-col :span="13">
+								<!-- 	<el-col :span="13">
 									<el-form-item label="设备端口" class="item-flex">
 										<el-input style="width: 200px;" type="number" v-model="form.deviceport"></el-input>
 										（可选参数）
 									</el-form-item>
-								</el-col>
+								</el-col> -->
 								<el-col :span="11">
 									<el-form-item label="窗口分割数">
 										<el-select v-model="form.argument.layout" placeholder="请选择">
@@ -103,15 +112,13 @@
 							</el-row> -->
 						</el-form>
 					</el-card>
-				</el-col>
-				<el-col :span="12">
 					<el-card shadow="never">
 						<div slot="header">预览</div>
-						<el-form label-position="left" :inline="true" label-width="100px">
+						<el-form label-position="left" ref="ruleForm" :inline="true" label-width="100px" :model="ruleForm">
 							<el-row>
 								<el-col :span="13">
 									<el-form-item label="码流类型" class="item-flex">
-										<el-select v-model="streamMode" placeholder="请选择">
+										<el-select v-model="ruleForm.streamMode" placeholder="请选择">
 											<el-option label="主码流" :value="0"></el-option>
 											<el-option label="子码流" :value="1"></el-option>
 										</el-select>
@@ -119,26 +126,42 @@
 									</el-form-item>
 								</el-col>
 								<el-col :span="11">
+									<el-form-item label="监控点编号" prop="cameraIndexCode" :rules="[
+				  { required: true, message: '必填项', trigger: 'blur' },
+				]">
+										<el-input v-model="ruleForm.cameraIndexCode" placeholder="请输入监控点编号"></el-input>
+									</el-form-item>
+								</el-col>
+							</el-row>
+							<el-row>
+								<el-col :span="24">
 									<el-button @click="handlePreview">开始预览</el-button>
 									<el-button @click="handleStopPreview">停止预览</el-button>
 								</el-col>
 							</el-row>
 							<!-- <el-row>
-								<el-col :span="13">
-									<el-form-item label="音量" class="item-flex">
-										<el-input-number style="width:110px" v-model="volume" controls-position="right" :min="0" :max="100"></el-input-number>
-										<el-button>设置</el-button>
-										（范围：0~100）
-									</el-form-item>
-								</el-col>
-								<el-col :span="11">
-									<el-button>打开声音</el-button>
-									<el-button>关闭声音</el-button>
-								</el-col>
-							</el-row> -->
+											<el-col :span="13">
+												<el-form-item label="音量" class="item-flex">
+													<el-input-number style="width:110px" v-model="volume" controls-position="right" :min="0" :max="100"></el-input-number>
+													<el-button>设置</el-button>
+													（范围：0~100）
+												</el-form-item>
+											</el-col>
+											<el-col :span="11">
+												<el-button>打开声音</el-button>
+												<el-button>关闭声音</el-button>
+											</el-col>
+										</el-row> -->
 						</el-form>
 					</el-card>
 
+
+				</el-col>
+				<el-col :span="12">
+					<el-card shadow="never">
+						<div slot="header">返回值信息<el-button style="float: right; padding: 3px 0" type="text" @click="info=''">清空</el-button></div>
+						<div class="info" ref="log" v-html="info"></div>
+						</el-card>
 				</el-col>
 			</el-row>
 		</div>
@@ -152,23 +175,27 @@
 			el: '#app',
 			data: function() {
 				return {
+					info:"",
 					loginDev: [],
 					channel: [],
 					channelId: '',
 					devId: '',
-					streamMode: 0,
 					volume: 50,
 					oWebControl: null,
+					ruleForm: {
+						streamMode: 0,
+						cameraIndexCode: ''
+					},
 					form: {
 						username: 'admin',
 						password: '123456',
 						deviceport: 8000,
 						argument: {
 							encryptedFields: 'secret',
-							appkey: "28730366", //综合安防管理平台提供的appkey，必填
-							ip: "10.19.132.75",
+							appkey: "23905561", //综合安防管理平台提供的appkey，必填
+							ip: "172.20.29.126",
 							port: 443,
-							secret: "HSZkCJpSJ7gSUYrO6wVi", //综合安防管理平台提供的secret，必填
+							secret: "UdH8j2TbETyh7n8MVARy", //综合安防管理平台提供的secret，必填
 							enableHTTPS: 1,
 							// language: "zh_CN",
 							layout: "1x1",
@@ -206,8 +233,8 @@
 								dllPath: "./VideoPluginConnect.dll"
 							}).then(function() {
 								self.oWebControl.JS_SetWindowControlCallback({ // 设置消息回调
-									cbIntegrationCallBack: function(a) {
-										console.log(a)
+									cbIntegrationCallBack: function(oData) {
+										 self.showCBInfo(JSON.stringify(oData.responseMsg));
 									}
 								});
 								self.oWebControl.JS_CreateWnd("playWnd", 800, 400).then(function() {
@@ -263,6 +290,7 @@
 							})
 						}).then(function(oData) {
 							self.oWebControl.JS_Resize(800, 400); // 初始化后resize一次，规避firefox下首次显示窗口后插件窗口未与DIV窗口重合问题
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						});
 					})
 				},
@@ -277,6 +305,7 @@
 						console.log(oData);
 						if (oData.responseMsg.data) {
 							self.pubKey = oData.responseMsg.data;
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 							callback()
 						}
 					})
@@ -289,29 +318,38 @@
 				//预览
 				handlePreview() {
 					const self = this
-					self.oWebControl.JS_RequestInterface({
-						funcName: "startPreview",
-						argument: JSON.stringify({
-							cameraIndexCode: '123', //监控点编号
-							streamMode: self.streamMode, //主子码流标识
-							transMode: 1, //传输协议
-							gpuMode: 0, //是否开启GPU硬解
-							wndId: -1 //可指定播放窗口
-						})
-					}).then(function(oData) {
-						if (oData.responseMsg.code == 0) {
-							self.$notify({
-								message: '预览开始!',
-								type: 'success'
-							});
-						} else {
-							self.$notify({
-								message: '预览失败!',
-								type: 'warning'
-							});
-						}
 
-					})
+					self.$refs['ruleForm'].validate((valid) => {
+						if (valid) {
+							self.oWebControl.JS_RequestInterface({
+								funcName: "startPreview",
+								argument: JSON.stringify({
+									cameraIndexCode: self.ruleForm.cameraIndexCode, //监控点编号
+									streamMode: self.ruleForm.streamMode, //主子码流标识
+									transMode: 1, //传输协议
+									gpuMode: 0, //是否开启GPU硬解
+									wndId: -1 //可指定播放窗口
+								})
+							}).then(function(oData) {
+								if (oData.responseMsg.code == 0) {
+									self.$notify({
+										message: '预览开始!',
+										type: 'success'
+									});
+									self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
+								} else {
+									self.$notify({
+										message: '预览失败!',
+										type: 'warning'
+									});
+								}
+
+							})
+						} else {
+							console.log('error submit!!');
+							return false;
+						}
+					});
 				},
 				handleStopPreview() {
 					const self = this
@@ -323,6 +361,7 @@
 								message: '停止成功!',
 								type: 'success'
 							});
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						} else {
 							self.$notify({
 								message: '停止失败!',
@@ -343,6 +382,7 @@
 								message: '全屏成功!',
 								type: 'success'
 							});
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						} else {
 							self.$notify({
 								message: '全屏失败!',
@@ -361,6 +401,7 @@
 								message: '退出全屏成功!',
 								type: 'success'
 							});
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						} else {
 							self.$notify({
 								message: '退出全屏失败!',
@@ -378,6 +419,7 @@
 						}).then(function(oData) {
 							if (oData.responseMsg.code == 0) {
 								self.init(self)
+								self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 							}
 						});
 					} else {
@@ -395,6 +437,7 @@
 								message: '退出成功!',
 								type: 'success'
 							});
+							self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						} else {
 							self.$notify({
 								message: '退出失败!',
@@ -412,6 +455,7 @@
 							self.$notify.info({
 								message: '设备版本号:' + oData.responseMsg.data
 							});
+							 self.showCBInfo(JSON.stringify(oData ? oData.responseMsg : ''));
 						}
 					});
 				},
@@ -423,6 +467,39 @@
 							function() { // 断开与插件服务连接失败
 							});
 					}
+				},
+				showCBInfo(szInfo, type) {
+					if (type === 'error') {
+						szInfo = "<div style='color: red;'>" + dateFormat(new Date(), "yyyy-MM-dd hh:mm:ss") + " " + szInfo + "</div>";
+					} else {
+						szInfo = "<div>" + this.dateFormat(new Date(), "yyyy-MM-dd hh:mm:ss") + " " + szInfo + "</div>";
+					}
+					 this.info =  this.info + szInfo
+					 
+					 this.$nextTick(() => {
+					         this.$refs["log"].scrollTop = this.$refs["log"].scrollHeight;
+					       });
+				},
+				// 格式化时间
+				dateFormat(oDate, fmt) {
+					var o = {
+						"M+": oDate.getMonth() + 1, //月份
+						"d+": oDate.getDate(), //日
+						"h+": oDate.getHours(), //小时
+						"m+": oDate.getMinutes(), //分
+						"s+": oDate.getSeconds(), //秒
+						"q+": Math.floor((oDate.getMonth() + 3) / 3), //季度
+						"S": oDate.getMilliseconds() //毫秒
+					};
+					if (/(y+)/.test(fmt)) {
+						fmt = fmt.replace(RegExp.$1, (oDate.getFullYear() + "").substr(4 - RegExp.$1.length));
+					}
+					for (var k in o) {
+						if (new RegExp("(" + k + ")").test(fmt)) {
+							fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+						}
+					}
+					return fmt;
 				}
 			}
 		})
