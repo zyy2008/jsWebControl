@@ -39,7 +39,7 @@
 			</el-row>
 			<el-row>
 				<el-col :span="12">
-					<el-card shadow="never">
+					<!-- <el-card shadow="never">
 						<div slot="header">登录</div>
 						<el-form label-position="left" :inline="true" label-width="100px">
 							<el-row>
@@ -54,7 +54,7 @@
 									</el-form-item>
 								</el-col>
 							</el-row>
-							<!-- <el-row>
+							<el-row>
 								<el-col :span="13">
 									<el-form-item label="用户名">
 										<el-input v-model="form.username" />
@@ -65,14 +65,14 @@
 										<el-input type="password" v-model="form.password" />
 									</el-form-item>
 								</el-col>
-							</el-row> -->
+							</el-row>
 							<el-row>
-								<!-- 	<el-col :span="13">
+									<el-col :span="13">
 									<el-form-item label="设备端口" class="item-flex">
 										<el-input style="width: 200px;" type="number" v-model="form.deviceport"></el-input>
 										（可选参数）
 									</el-form-item>
-								</el-col> -->
+								</el-col>
 								<el-col :span="11">
 									<el-form-item label="窗口分割数">
 										<el-select v-model="form.argument.layout" placeholder="请选择">
@@ -91,7 +91,7 @@
 									<el-button type="info" @click="getVersion">获取基本信息</el-button>
 								</el-col>
 							</el-row>
-							<!-- <el-row>
+							<el-row>
 								<el-col :span="13">
 									<el-form-item label="已登录设备" class="item-flex">
 										<el-select v-model="devId" placeholder="请选择" style="width: 200px;">
@@ -109,9 +109,9 @@
 										</el-select>
 									</el-form-item>
 								</el-col>
-							</el-row> -->
+							</el-row>
 						</el-form>
-					</el-card>
+					</el-card> -->
 					<el-card shadow="never">
 						<div slot="header">预览</div>
 						<el-form label-position="left" ref="ruleForm" :inline="true" label-width="100px" :model="ruleForm">
@@ -122,7 +122,7 @@
 											<el-option label="主码流" :value="0"></el-option>
 											<el-option label="子码流" :value="1"></el-option>
 										</el-select>
-										<el-button @click="handleFullScreen">全屏</el-button>
+										<el-button @click="handleFullScreen" type="success">全屏</el-button>
 									</el-form-item>
 								</el-col>
 								<el-col :span="11">
@@ -135,8 +135,8 @@
 							</el-row>
 							<el-row>
 								<el-col :span="24">
-									<el-button @click="handlePreview">开始预览</el-button>
-									<el-button @click="handleStopPreview">停止预览</el-button>
+									<el-button @click="handlePreview" type="primary">开始预览</el-button>
+									<el-button @click="handleStopPreview" type="danger">停止预览</el-button>
 								</el-col>
 							</el-row>
 							<!-- <el-row>
@@ -239,7 +239,7 @@
 								});
 								self.oWebControl.JS_CreateWnd("playWnd", 800, 400).then(function() {
 									console.log('加载成功')
-									// self.init(self)
+									self.init(self)
 								});
 							}, function() {
 
